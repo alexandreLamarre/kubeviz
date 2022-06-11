@@ -1,5 +1,41 @@
 import logo from './logo.svg';
 import './App.css';
+import {useState} from 'react'
+import {useAsync} from 'react-async'
+
+const invoke = window.__TAURI__.invoke;
+
+async function invokeDB(){
+  const value = await invoke("get_db");
+  alert(value);
+}
+
+async function incrementDB() {
+  const value = await invoke("increment_db");
+}
+
+async function kubeNamespace() {
+  const value = await invoke("namespaces")
+  return value;
+}
+
+const loadPlayer = async ({ playerId }, { signal }) => {
+  const res = await fetch(`/api/players/${playerId}`, { signal })
+  if (!res.ok) throw new Error(res.statusText)
+  return res.json()
+}
+
+const invokeNamespaces = async () => {
+  const res = await invoke("namespaces");
+  return res;
+} 
+
+function Namespace() {
+  const {data, error, isLoading} = useAsync(invokeNamespaces);
+  if (isLoading) return <p>Loading...</p>
+  if(data)
+    return <p>{data}</p>
+}
 
 function App() {
   return (
@@ -17,6 +53,8 @@ function App() {
         >
           Learn React
         </a>
+        <Namespace/>
+        <p> Hello </p>
       </header>
     </div>
   );
