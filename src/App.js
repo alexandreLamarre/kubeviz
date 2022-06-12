@@ -26,8 +26,10 @@ const loadPlayer = async ({ playerId }, { signal }) => {
 }
 
 const invokeNamespaces = async () => {
-  const res = await invoke("namespaces");
-  return res;
+  await invoke("namespaces")
+    .then(res => {console.log(res);return res})
+    .catch(err => {console.log(err)})
+    .finally();
 } 
 
 function Namespace() {
@@ -55,6 +57,7 @@ function App() {
         </a>
         <Namespace/>
         <p> Hello </p>
+        <button onClick={invokeNamespaces}>Invoke DB</button>
       </header>
     </div>
   );
