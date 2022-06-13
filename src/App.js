@@ -3,10 +3,10 @@ import './App.css';
 import {useState} from 'react'
 import {useAsync} from 'react-async'
 
-const invoke = window.__TAURI__.invoke;
+import { invoke } from '@tauri-apps/api/tauri'
 
 async function invokeDB(){
-  const value = await invoke("get_db");
+  const value = await invoke("ctx::get_db");
   alert(value);
 }
 
@@ -26,15 +26,17 @@ const loadPlayer = async ({ playerId }, { signal }) => {
 }
 
 const invokeNamespaces = async () => {
-  await invoke("namespaces")
-    .then(res => {console.log(res);return res})
-    .catch(err => {console.log(err)})
-    .finally();
+  console.log(invoke)
+  await invoke("kube::discovery::namespaces", {cl: null})
+    .then(res => {alert(res);return res})
+    .catch(err => {alert(err)})
+    .finally(alert("finally"));
 } 
 
 function Namespace() {
-  const {data, error, isLoading} = useAsync(invokeNamespaces);
+  const {data, error, isLoading} = useAsync(invokeNamespaces());
   if (isLoading) return <p>Loading...</p>
+  if (error) return <p>Error: {error.message}</p>
   if(data)
     return <p>{data}</p>
 }
@@ -57,8 +59,10 @@ function App() {
         </a>
         <Namespace/>
         <p> Hello </p>
-        <button onClick={invokeNamespaces}>Invoke DB</button>
-      </header>
+        <button onClick={() => {invokeDB()}}>Invoke DB</button>
+        <button onClick={() => {alert("button")}}> test </button>
+        <button onClick={() => {invokeNamespaces()}}>Increment DB</button>
+        </header>
     </div>
   );
 }

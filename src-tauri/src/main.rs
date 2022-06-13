@@ -19,14 +19,14 @@ pub fn app_to_string() -> String {
 
 fn main() {
   tauri::Builder::default()
-    .setup(|app| {
-      {
-        let window = app.get_window("main").unwrap();
-        window.open_devtools();
-        window.close_devtools();
-      }
-      Ok(())
-    })
+    // .setup(|app| {
+    //   {
+    //     let window = app.get_window("main").unwrap();
+    //     window.open_devtools();
+    //     window.close_devtools();
+    //   }
+    //   Ok(())
+    // })
     .run(tauri::generate_context!())
     .expect(format!("error while running {}", app_to_string()).as_str());
 }

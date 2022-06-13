@@ -8,9 +8,12 @@ use std::error::Error;
 
 /// Gets all namespaces in current context
 #[tauri::command]
-pub async fn get_namespaces(cl: kube::Client) -> Result<Vec<String>, Box<dyn Error>> {
+pub async fn get_namespaces(mut cl: Option<kube::Client>) -> Result<Vec<String>, Box<dyn Error>> {
     // Read pods in the configured namespace into the typed interface from k8s-openapi
-    let ns: Api<Namespace> = Api::default_namespaced(cl);
+    if cl.is_none() {
+        cl = Some(Client::try_default().await?);
+    }
+    let ns: Api<Namespace> = Api::default_namespaced(cl.unwrap());
     let mut res: Vec<String> = vec![];
     for n in ns.list(&ListParams::default()).await? {
         println!("found pod {}", n.name());
@@ -73,3 +76,53 @@ pub async fn get_services(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box
     }
     Ok(res)
 }
+
+// ("APIService", "apiservices"),
+// ("Binding", "bindings"),
+// ("CertificateSigningRequest", "certificatesigningrequests"),
+// ("ClusterRole", "clusterroles"), ("ClusterRoleBinding", "clusterrolebindings"),
+// ("ComponentStatus", "componentstatuses"),
+// ("ConfigMap", "configmaps"),
+// ("ControllerRevision", "controllerrevisions"),
+// ("CronJob", "cronjobs"),
+// ("CSIDriver", "csidrivers"), ("CSINode", "csinodes"), ("CSIStorageCapacity", "csistoragecapacities"),
+// ("CustomResourceDefinition", "customresourcedefinitions"),
+// ("DaemonSet", "daemonsets"),
+// ("Deployment", "deployments"),
+// ("Endpoints", "endpoints"), ("EndpointSlice", "endpointslices"),
+// ("Event", "events"),
+// ("FlowSchema", "flowschemas"),
+// ("HorizontalPodAutoscaler", "horizontalpodautoscalers"),
+// ("Ingress", "ingresses"), ("IngressClass", "ingressclasses"),
+// ("Job", "jobs"),
+// ("Lease", "leases"),
+// ("LimitRange", "limitranges"),
+// ("LocalSubjectAccessReview", "localsubjectaccessreviews"),
+// ("MutatingWebhookConfiguration", "mutatingwebhookconfigurations"),
+// ("Namespace", "namespaces"),
+// ("NetworkPolicy", "networkpolicies"),
+// ("Node", "nodes"),
+// ("PersistentVolumeClaim", "persistentvolumeclaims"),
+// ("PersistentVolume", "persistentvolumes"),
+// ("PodDisruptionBudget", "poddisruptionbudgets"),
+// ("Pod", "pods"),
+// ("PodSecurityPolicy", "podsecuritypolicies"),
+// ("PodTemplate", "podtemplates"),
+// ("PriorityClass", "priorityclasses"),
+// ("PriorityLevelConfiguration", "prioritylevelconfigurations"),
+// ("ReplicaSet", "replicasets"),
+// ("ReplicationController", "replicationcontrollers"),
+// ("ResourceQuota", "resourcequotas"),
+// ("Role", "roles"), ("RoleBinding", "rolebindings"),
+// ("RuntimeClass", "runtimeclasses"),
+// ("Secret", "secrets"),
+// ("SelfSubjectAccessReview", "selfsubjectaccessreviews"),
+// ("SelfSubjectRulesReview", "selfsubjectrulesreviews"),
+// ("ServiceAccount", "serviceaccounts"),
+// ("Service", "services"),
+// ("StatefulSet", "statefulsets"),
+// ("StorageClass", "storageclasses"), ("StorageVersion", "storageversions"),
+// ("SubjectAccessReview", "subjectaccessreviews"),
+// ("TokenReview", "tokenreviews"),
+// ("ValidatingWebhookConfiguration", "validatingwebhookconfigurations"),
+// ("VolumeAttachment", "volumeattachments"),
