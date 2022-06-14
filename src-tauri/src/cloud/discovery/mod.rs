@@ -1,24 +1,22 @@
 use k8s_openapi::api::apps::v1::{Deployment, ReplicaSet, StatefulSet};
 use k8s_openapi::api::core::v1::{Namespace, Pod, Service};
+//use k8s_openapi::ListOptional;
 use kube::{
-    api::{Api, ListParams, PostParams, ResourceExt},
+    api::{Api, ListParams, /*PostParams,*/ ResourceExt},
     Client,
 };
 use std::error::Error;
 
 /// Gets all namespaces in current context
 #[tauri::command]
-pub async fn get_cloud_namespaces(
-    mut cl: Option<kube::Client>,
-) -> Result<Vec<String>, Box<dyn Error>> {
-    // Read pods in the configured namespace into the typed interface from k8s-openapi
-    if cl.is_none() {
-        cl = Some(Client::try_default().await?);
-    }
-    let ns: Api<Namespace> = Api::default_namespaced(cl.unwrap());
+pub async fn get_cloud_namespaces() -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let ns: Api<Namespace> = Api::all(client);
     let mut res: Vec<String> = vec![];
-    for n in ns.list(&ListParams::default()).await? {
-        println!("found pod {}", n.name());
+    for n in ns.list(&ListParams::default()).await.unwrap() {
         res.push(n.name());
     }
     Ok(res)
@@ -87,6 +85,13 @@ mod tests {
         ($e:expr) => {
             tokio_test::block_on($e)
         };
+    }
+
+    #[test]
+    fn test_get_cloud_namespaces() {
+        let res = aw!(get_cloud_namespaces());
+        assert!(res.is_ok());
+        assert!(res.unwrap().len() > 0);
     }
 }
 
