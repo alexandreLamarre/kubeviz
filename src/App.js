@@ -6,23 +6,55 @@ import {useAsync} from 'react-async'
 import { invoke } from '@tauri-apps/api/tauri'
 
 const invokeNamespaces = async () => {
-  console.log(invoke)
-  await invoke("get_cloud_namespaces", {cl: null})
-    .then(res => {alert(res);return res})
+  invoke("get_cloud_namespaces")
+    .then(res => {return res;})
     .catch(err => {alert(err)});
+
 } 
 
-function Namespace() {
-  const {data, error, isLoading} = useAsync(invokeNamespaces());
-  if (isLoading) return <p>Loading...</p>
-  if (error) return <p>Error: {error.message}</p>
-  if(data) {
-    const k = data.split("\n");
-    const namespaces = k.map((item, index) => {
-      <li> {item} </li>
+const invokePods = async () => {
+  await invoke("get_pods", {"ns" : "default"})
+    .then((res) => {res.map((obj) => {
+      alert(obj)
+    });})
+    .catch(err => {alert(err)})
+    .finally(() => {
+      alert("done")
     });
-    return <ul> {namespaces} </ul>
-  }
+
+}
+
+const invoke_cmd_a = async() => {
+  invoke("cmd_a")
+    .then((res) => {alert(res);return res;})
+    .catch((err) => {alert(err)})
+    .finally(() => 
+    {
+      alert("done")
+    })
+}
+
+const invoke_cmd_err = async() => {
+  await invoke("cmd_err")
+    .then((res) => {;return res;})
+    .catch((err) => {alert("Error : ", err)})
+    .finally(() => {
+
+    })
+}
+
+function Namespace() {
+  const { execute, status, value, error } = useAsync(invokeNamespaces, false);
+  return (
+    <div>
+      {status === "idle" && <div>Start your journey by clicking a button</div>}
+      {status === "success" && <div>{value}</div>}
+      {status === "error" && <div>{error}</div>}
+      <button onClick={execute} disabled={status === "pending"}>
+        {status !== "pending" ? "Click me" : "Loading..."}
+      </button>
+    </div>
+  );
 }
 
 function App() {
@@ -42,7 +74,10 @@ function App() {
           Learn React
         </a> */}
         <Namespace/>
-        <button onClick={() => {alert(invokeNamespaces())}}> Invoke namespaces </button>
+        <button onClick={() => {invokeNamespaces()}}> Invoke namespaces </button>
+        <button onClick={() => {invokePods()}}> Invoke pods </button>
+        <button onClick={() => {invoke_cmd_a()}}> Invoke cmd_a </button>
+        <button onClick={() => {invoke_cmd_err()}}> Invoke cmd_err </button>
         </header>
     </div>
   );

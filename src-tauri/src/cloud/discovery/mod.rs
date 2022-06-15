@@ -17,16 +17,21 @@ pub async fn get_cloud_namespaces() -> Result<Vec<String>, String> {
     let ns: Api<Namespace> = Api::all(client);
     let mut res: Vec<String> = vec![];
     for n in ns.list(&ListParams::default()).await.unwrap() {
+        println!("Found namespace {}", n.name());
         res.push(n.name());
     }
     Ok(res)
 }
 
 #[tauri::command]
-pub async fn get_pods(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let pods: Api<Pod> = Api::namespaced(cl, ns);
+pub async fn get_pods(ns: &str) -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let pods: Api<Pod> = Api::namespaced(client, ns);
     let mut res: Vec<String> = vec![];
-    for p in pods.list(&ListParams::default()).await? {
+    for p in pods.list(&ListParams::default()).await.unwrap() {
         println!("found pod {}", p.name());
         res.push(p.name());
     }
@@ -34,10 +39,14 @@ pub async fn get_pods(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn
 }
 
 #[tauri::command]
-pub async fn get_deployments(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let deployments: Api<Deployment> = Api::namespaced(cl, ns);
+pub async fn get_deployments(ns: &str) -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let deployments: Api<Deployment> = Api::namespaced(client, ns);
     let mut res: Vec<String> = vec![];
-    for d in deployments.list(&ListParams::default()).await? {
+    for d in deployments.list(&ListParams::default()).await.unwrap() {
         println!("found deployment {}", d.name());
         res.push(d.name());
     }
@@ -45,10 +54,14 @@ pub async fn get_deployments(cl: kube::Client, ns: &str) -> Result<Vec<String>, 
 }
 
 #[tauri::command]
-pub async fn get_replicasets(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let replicasets: Api<ReplicaSet> = Api::namespaced(cl, ns);
+pub async fn get_replicasets(ns: &str) -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let replicasets: Api<ReplicaSet> = Api::namespaced(client, ns);
     let mut res: Vec<String> = vec![];
-    for r in replicasets.list(&ListParams::default()).await? {
+    for r in replicasets.list(&ListParams::default()).await.unwrap() {
         println!("found replicaset {}", r.name());
         res.push(r.name());
     }
@@ -56,10 +69,14 @@ pub async fn get_replicasets(cl: kube::Client, ns: &str) -> Result<Vec<String>, 
 }
 
 #[tauri::command]
-pub async fn get_statefulsets(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let statefulsets: Api<StatefulSet> = Api::namespaced(cl, ns);
+pub async fn get_statefulsets(ns: &str) -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let statefulsets: Api<StatefulSet> = Api::namespaced(client, ns);
     let mut res: Vec<String> = vec![];
-    for s in statefulsets.list(&ListParams::default()).await? {
+    for s in statefulsets.list(&ListParams::default()).await.unwrap() {
         println!("found statefulset {}", s.name());
         res.push(s.name());
     }
@@ -67,10 +84,14 @@ pub async fn get_statefulsets(cl: kube::Client, ns: &str) -> Result<Vec<String>,
 }
 
 #[tauri::command]
-pub async fn get_services(cl: kube::Client, ns: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let pods: Api<Service> = Api::namespaced(cl, ns);
+pub async fn get_services(ns: &str) -> Result<Vec<String>, String> {
+    let client = match Client::try_default().await {
+        Ok(client) => client,
+        Err(e) => return Err(format!("Connecting to default kubernetes : {}", e)),
+    };
+    let pods: Api<Service> = Api::namespaced(client, ns);
     let mut res: Vec<String> = vec![];
-    for p in pods.list(&ListParams::default()).await? {
+    for p in pods.list(&ListParams::default()).await.unwrap() {
         println!("found pod {}", p.name());
         res.push(p.name());
     }
