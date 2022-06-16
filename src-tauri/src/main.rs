@@ -4,6 +4,7 @@
 )]
 pub mod cloud;
 pub mod ctx;
+use tauri::Manager;
 
 pub static APP_NAME: &str = "Kubeviz";
 pub static VERSION: &str = "0.1.0";
