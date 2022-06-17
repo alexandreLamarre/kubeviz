@@ -1,12 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import {useAsync} from './hooks'
-
-import { invoke } from '@tauri-apps/api/tauri'
-
-const invokeNamespaces = async () => {
-  return invoke("get_cloud_namespaces")
-} 
+import {invokeNamespaces} from './tauri'
 
 const Namespace = () => {
   const { execute, status, value, error } = useAsync(invokeNamespaces);
