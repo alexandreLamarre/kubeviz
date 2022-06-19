@@ -1,11 +1,57 @@
 use k8s_openapi::api::apps::v1::{Deployment, ReplicaSet, StatefulSet};
-use k8s_openapi::api::core::v1::{Namespace, Pod, Service};
+use k8s_openapi::api::core::v1::{Event, Namespace, ObjectReference, Pod, Service};
+
 //use k8s_openapi::ListOptional;
+use futures::{StreamExt, TryStreamExt};
 use kube::{
-    api::{Api, ListParams, /*PostParams,*/ ResourceExt},
+    api::{Api, ListParams, /*PostParams,*/ ResourceExt, WatchEvent},
     Client,
 };
 use std::error::Error;
+
+use kube::runtime::{watcher, WatchStreamExt};
+
+pub async fn main_watch() -> Result<(), Box<dyn Error>> {
+    println!("Starting main_watch");
+    let client = Client::try_default().await?;
+    let kube_events: Api<Event> = Api::all(client);
+    let lp = ListParams::default();
+    let mut stream = kube_events.watch(&lp, "0").await?.boxed();
+    while let Some(status) = stream.try_next().await? {
+        match status {
+            WatchEvent::Added(obj) => {
+                println!("\nAdded: {:?}", obj.metadata);
+            }
+            WatchEvent::Modified(obj) => {
+                println!("\nModified: {:?}", obj.metadata);
+            }
+            WatchEvent::Deleted(obj) => {
+                println!("\nDeleted: {:?}", obj.metadata);
+            }
+            WatchEvent::Error(err) => {
+                println!("\nError: {:?}", err);
+            }
+            WatchEvent::Bookmark(s) => {}
+        }
+    }
+    println!("Exited main_watch");
+    Ok(())
+}
+
+// pub async fn main_watch_recovery_loop() -> Result<(), watcher::Error> {
+//     let client = Client::try_default().await.unwrap();
+//     let pods: Api<Pod> = Api::all(client);
+
+//     watcher(pods, ListParams::default())
+//         .applied_objects()
+//         .try_for_each(|obj| {
+//             println!("{:?}", obj);
+//             Ok(())
+//         })
+//         .await?;
+
+//     Ok(())
+// }
 
 /// Gets all namespaces in current context
 #[tauri::command]

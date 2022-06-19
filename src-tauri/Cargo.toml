@@ -22,6 +22,9 @@ kube = { version = "0.73.1", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.15.0", features = ["v1_24"] }
 schemars = "0.8.10"
 serde_yaml = "0.8.24"
+futures = "0.3.21"
+tokio = { version = "1.19.2", features = ["full"] }
+protobuf = "3.0.3"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
